@@ -1,6 +1,7 @@
-// fetch('data/config.json')
-//   .then(response => response.json())
-//   .then(data => console.log(data));
+/**
+ * How it works?
+ * 
+ */
 function start(){
   // Run Functions
   displayTime();
@@ -61,6 +62,7 @@ function start(){
           if(!checkEntryHistory(timetableCode)){
             console.log("Added entry for " + timetableCode + " on " + currentDate() + " " + timetableTime);
             addEntryHistory(timetableCode);
+            addEntryToEndpoint(timetableCode);
           }
         }
       }
@@ -134,11 +136,31 @@ function start(){
   }
 
   // Add Entry to the Endpoint
-  function addEntryToEndpoint(){
-    fetch('data/timetable.json')
+  function addEntryToEndpoint(code){
+    fetch('data/config.json')
     .then(response => response.json())
     .then(data => {
-      
+      let formData = new FormData();
+      let endpointURL = data.endpointURL;
+      let kelas = data.studentClass;
+      let kod = code + kelas;
+      let nama = data.studentName;
+      let kp = data.studentIC;
+      formData.append('kod', kod);
+      formData.append('nama', nama);
+      formData.append('kp', kp);
+      // Send Post Request
+      fetch(endpointURL, {
+        method: 'post',
+        mode: "no-cors",
+        body: formData
+      }).then(function (response){
+        return response.text();
+      }).then(function (text){
+        console.log(text);
+      }).catch(function (error){
+        console.log(error);
+      });
     });
   }
 }
