@@ -9,7 +9,7 @@ This project is just a more friendly version of that Python code I created. I us
 
 # How To Use
 
-Again, this project is just for fun and created to be used for cheating. But if you want to test it on your personal project, the how to use guide can be seen if you load the index.html file on the browser.
+Again, this project is just for fun and created to not be used for cheating. But if you want to test it on your personal project, the how to use guide can be seen if you load the index.html file on the browser.
 
 # License
 
