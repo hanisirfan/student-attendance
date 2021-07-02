@@ -1,10 +1,12 @@
 /**
  * How it works?
- * 
+ * TBA
  */
 function start(){
   // Run Functions
   displayTime();
+  displayStudentDetails();
+  displayTodayEntry();
   addEntryAll();
   currentTime();
   deleteEntryHistoryNotToday();
@@ -18,15 +20,16 @@ function start(){
     return time;
   }
 
-    // Current Date (Format: DD/MM/YYYY)
-    function currentDate(){
-      let d = new Date();
-      let day = addZeroToTime(d.getDate());
-      let month = addZeroToTime(d.getMonth());
-      let year = addZeroToTime(d.getFullYear());
-      let date = day + "/" + month + "/" + year;
-      return date;
-    }
+  // Current Date (Format: DD/MM/YYYY)
+  function currentDate(){
+    let d = new Date();
+    let day = addZeroToTime(d.getDate());
+    let month = addZeroToTime(d.getMonth());
+    let year = addZeroToTime(d.getFullYear());
+    let date = day + "/" + month + "/" + year;
+    return date;
+  }
+  
 
   // Display Time
   function displayTime() {
@@ -47,13 +50,71 @@ function start(){
     return i;
   }
 
+  // Display student details
+  function displayStudentDetails(){
+    fetch('data/config.json')
+    .then(response => response.json())
+    .then(data => {
+      const studentNameDisplay = document.querySelector("#student-name-display");
+      const studentICDisplay = document.querySelector("#student-ic-display");
+      const studentClassDisplay = document.querySelector("#student-class-display");
+      studentNameDisplay.innerText = data.studentName;
+      studentICDisplay.innerText = data.studentIC;
+      studentClassDisplay.innerText = data.studentClass;
+    });
+    setTimeout(displayStudentDetails, 1000);
+  }
+
+  // Display Today Entry In The List If Available (Update every 1 minute)
+  function displayTodayEntry(){
+    const todayEntry = document.querySelector("#today-entry");
+    checkTodayEntry().then(value => {
+      if(Array.isArray(value)){
+        if(value.length < 1){
+          todayEntry.innerHTML = "<p>N/A</p>";
+        }else{
+          for (let index = 0; index < value.length; index++) {
+            const element = value[index];
+            addRow(element['code'], element['time'])
+          }
+        }
+      }else{
+        todayEntry.innerText = "N/A";
+      }
+    });
+    todayEntry.textContent = "";
+    setTimeout(displayTodayEntry, 60000);
+  }
+
+  function addRow(code, time){
+    const todayEntry = document.querySelector("#today-entry");
+    html = "Code: " + code + ", Time: " + time;
+    node = document.createElement("div");
+    node.style.display = "flex";
+    node.innerHTML = html;
+    todayEntry.appendChild(node);
+  }
+
+  async function checkTodayEntry(){
+    const response = await fetch('data/timetable.json');
+    const data = await response.json();
+    for (const [key, value] of Object.entries(data)) {
+      if(key == checkDay()){
+        result = value;
+      }else{
+        result = "N/A";
+      }
+    }
+    return result;
+  }
+
   // Add Entry To Form
   function addEntryAll(){
     fetch('data/timetable.json')
     .then(response => response.json())
     .then(data => {
       // Current day in name
-      dayTimetableArray = data[checkDay()];
+      let dayTimetableArray = data[checkDay()];
       for (let i = 0; i < dayTimetableArray.length; i++){
         let timetableTime = dayTimetableArray[i]["time"];
         let timetableCode = dayTimetableArray[i]["code"];
